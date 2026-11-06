@@ -11,6 +11,16 @@ import { z } from 'zod';
 import axios from 'axios';
 import OpenAI from 'openai';
 
+// Point the Agents SDK at the local model server (OpenAI-compatible API).
+const client = new OpenAI({
+  baseURL: process.env.baseURL,
+  apiKey: 'not-needed', // local server ignores it, but the OpenAI client requires a value
+});
+
+setDefaultOpenAIClient(client);
+setOpenAIAPI('chat_completions'); // local servers speak Chat Completions, not the Responses API
+setTracingDisabled(true); // don't try to upload traces to OpenAI
+
 const GetWeatherResultSchema = z.object({
   city: z.string().describe('name of the city'),
   degree_c: z.number().describe('the degree celcius of the temp'),
@@ -41,21 +51,6 @@ const sendEmailTool = tool({
   execute: async function ({ body, subject, toEmail }) {},
 });
 
-
-
-// Point the Agents SDK at the local model server (OpenAI-compatible API).
-const client = new OpenAI({
-  baseURL: process.env.baseURL,
-  apiKey: 'not-needed', // local server ignores it, but the OpenAI client requires a value
-});
-
-setDefaultOpenAIClient(client);
-setOpenAIAPI('chat_completions'); // local servers speak Chat Completions, not the Responses API
-setTracingDisabled(true); // don't try to upload traces to OpenAI
-
-
-
-
 const agent = new Agent({
   name: 'Weather Agent',
   model: process.env.model,
@@ -68,7 +63,7 @@ const agent = new Agent({
 
 async function main(query = '') {
   const result = await run(agent, query);
-  console.log(`Result:`, result.finalOutput.degree_c);
+  console.log(`Result:`, result);
 }
 
-main(`What is the weather of Delhi?`);
+main(`what is the weather in patna`);

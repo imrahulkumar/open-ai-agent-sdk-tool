@@ -1,4 +1,12 @@
-import { Agent, run, tool } from '@openai/agents';
+import 'dotenv/config';
+import {
+  Agent,
+  run,
+  tool,
+  setDefaultOpenAIClient,
+  setOpenAIAPI,
+  setTracingDisabled,
+} from '@openai/agents';
 import { z } from 'zod';
 import axios from 'axios';
 import OpenAI from 'openai';
@@ -50,6 +58,7 @@ setTracingDisabled(true); // don't try to upload traces to OpenAI
 
 const agent = new Agent({
   name: 'Weather Agent',
+  model: process.env.model,
   instructions: `
         You are an expert weather agent that helps user to tell weather report
     `,
